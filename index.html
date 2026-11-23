@@ -1,17 +1,43 @@
 <!doctype html>
 <html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#102c2e">
-<title>Stillwater · Fishing Simulator</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#102629;color:#fff5d8;font:16px system-ui,sans-serif}button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid white;outline-offset:5px}main{min-height:100svh;display:flex;flex-direction:column}header{padding:18px clamp(16px,5vw,72px);display:flex;align-items:center;justify-content:space-between;gap:12px;background:#112c2e;border-bottom:1px solid #51736a}h1{margin:0;font:bold clamp(20px,4vw,29px) monospace;letter-spacing:.14em}header p{margin:4px 0 0;color:#b7cdbd;font-size:13px}#journal{background:#203d3b;color:#fff5d8;border:1px solid #59786b;padding:9px 13px;border-radius:5px;white-space:nowrap}.scene{position:relative;flex:1;display:grid;min-height:320px;overflow:hidden;background:#396c6c}canvas{width:100%;height:100%;position:absolute;image-rendering:pixelated;object-fit:cover;object-position:55% center}.location{position:absolute;top:22px;left:clamp(16px,5vw,72px);padding:8px 12px;background:#102c2ee8;border-left:3px solid #ffce80;font: bold 13px monospace;letter-spacing:.12em}.panel{text-align:center;background:#102629;padding:17px 15px 21px;border-top:1px solid #73918a}.panel h2{margin:0 0 5px;font:bold clamp(20px,4vw,26px) monospace}.panel p{color:#cfdfcd;margin:0 0 14px}#action{min-width:220px;color:#231e16;background:#ffce80;border:0;border-radius:5px;padding:11px 22px;font:bold 17px monospace;box-shadow:0 4px #946237}#action:hover{background:#ffe0a4}.key{display:block;margin-top:10px;color:#afc4b8;font-size:13px}dialog{background:#173636;color:#fff5d8;border:1px solid #789384;border-radius:8px;width:min(390px,92vw);padding:24px}dialog::backdrop{background:#091d20aa}dialog h2{margin-top:0;font-family:monospace}dialog button{background:#ffce80;color:#231e16;border:0;padding:8px 15px;border-radius:4px}ul{padding:0;list-style:none}li{border-top:1px solid #45615b;padding:10px 0;display:flex;justify-content:space-between;gap:10px}li span{color:#caddcb}
-</style>
-<main>
-<header><div><h1>STILLWATER</h1><p>Fishing Simulator</p></div><button id="journal">Catch log · <span id="total">0</span></button></header>
-<section class="scene" aria-label="Pixel-art mountain lake"><canvas width="480" height="270" aria-hidden="true"></canvas><div class="location">PINE RIDGE LAKE</div></section>
-<section class="panel"><div aria-live="polite"><h2 id="status">Ready to fish?</h2><p id="hint">Cast into the lake and wait for a bite.</p></div><button id="action">Cast line</button><span class="key">Space or tap to play</span></section>
+<meta name="theme-color" content="#151d19">
+<title>Stillwater | First-person fishing</title>
+<link rel="stylesheet" href="style.css">
+<script src="game.js" defer></script>
+</head>
+<body>
+<main class="game" aria-label="Stillwater fishing simulator">
+  <div class="view" id="view">
+    <img class="lake" src="assets/lake.webp" alt="Snowy mountains and evergreen forests reflected in an alpine lake">
+    <img class="rod" id="rod" src="assets/rod.webp" alt="">
+    <canvas id="surface" aria-hidden="true"></canvas>
+  </div>
+  <header>
+    <div><div class="brand">Stillwater</div><div class="subtitle">Fishing simulator</div></div>
+    <div class="tools"><button id="sound" type="button" aria-pressed="false">Sound off</button><button id="journal" type="button">Catch log <span id="total">0</span></button></div>
+  </header>
+  <div class="location"><span>Greater Yellowstone</span><strong>Pine Ridge Lake</strong></div>
+  <section class="controls" aria-label="Fishing controls">
+    <div aria-live="polite" class="message">
+      <h1 id="status">Cast into the shallows</h1>
+      <p id="hint">Choose a spot on the water or cast straight ahead.</p>
+    </div>
+    <div id="meters" hidden>
+      <div><label for="distance">Reel progress</label><progress id="distance" max="1" value="0"></progress></div>
+      <div><label for="tension">Line tension</label><meter id="tension" max="1" low=".62" high=".85" optimum=".3" value="0"></meter></div>
+    </div>
+    <button type="button" id="action">Cast line</button>
+    <div class="keyboard"><kbd>Space</kbd> <span id="shortcut">to cast</span></div>
+  </section>
 </main>
-<dialog id="log"><h2>Catch log</h2><p id="summary"></p><ul id="species"></ul><form method="dialog"><button>Close</button></form></dialog>
-<script src="game.js"></script>
+<dialog id="log">
+  <h2>Catch log</h2>
+  <p id="summary">Your first catch will appear here.</p>
+  <ul id="species"></ul>
+  <form method="dialog"><button type="submit">Back to the lake</button></form>
+</dialog>
+</body>
 </html>

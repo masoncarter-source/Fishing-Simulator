@@ -1,223 +1,338 @@
 'use strict';
-const canvas = document.querySelector('canvas');
+
+const $ = selector => document.querySelector(selector);
+const view = $('#view');
+const canvas = $('#surface');
 const ctx = canvas.getContext('2d');
-const landscape = document.createElement('canvas');
-landscape.width = 480;
-landscape.height = 270;
-const art = landscape.getContext('2d');
-const rect = (g, x, y, w, h, color) => {
-  g.fillStyle = color;
-  g.fillRect(Math.round(x), Math.round(y), w, h);
-};
-function polygon(g, color, points) {
-  g.fillStyle = color;
-  g.beginPath();
-  points.forEach(([x,y], i) => i ? g.lineTo(x,y) : g.moveTo(x,y));
-  g.fill();
-}
-let seed = 431;
-function random() {
-  seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
-  return seed / 4294967296;
-}
-function pine(g, x, y, h, color, light) {
-  rect(g,x-1,y-h,2,h,'#273f39');
-  for (let i=3;i<h-2;i+=2) {
-    const spread = Math.max(1,Math.floor(i*.27 + (i%6===3 ? 2 : 0)));
-    rect(g,x-spread,y-h+i,spread*2+1,2,color);
-    rect(g,x-spread,y-h+i,Math.max(1,spread/2),1,light);
-  }
-}
-const sky = art.createLinearGradient(0,0,0,145);
-sky.addColorStop(0,'#548d9c');
-sky.addColorStop(.73,'#b0d2c4');
-sky.addColorStop(1,'#ffda9b');
-rect(art,0,0,480,147,sky);
-for(let y=-15;y<=15;y++){
-  const w=Math.floor(Math.sqrt(225-y*y));
-  rect(art,343-w,46+y,2*w+1,1,'#ffdfa3');
-}
-for (const [x,y,w] of [[40,37,75],[254,24,63],[366,65,83],[125,63,53]]) {
-  rect(art,x,y,w,3,'#b5d4c8');
-  rect(art,x+12,y-4,w*.55,4,'#c6ddcc');
-  rect(art,x+24,y-7,w*.26,4,'#d0e3d0');
-}
-polygon(art,'#729a9b',[[0,100],[40,70],[65,92],[93,64],[155,96],[204,64],[250,96],[302,71],[338,97],[380,71],[405,89],[452,63],[480,87],[480,143],[0,143]]);
-const peaks=[
-  [77,54,[[0,117],[14,101],[37,87],[52,65],[65,64],[77,54],[91,69],[104,79],[120,96],[154,122]]],
-  [165,31,[[55,128],[83,105],[104,92],[118,72],[133,60],[143,44],[153,45],[165,31],[179,42],[198,70],[217,89],[242,107],[262,127]]],
-  [254,53,[[174,127],[192,104],[216,87],[232,68],[242,68],[254,53],[267,62],[285,88],[305,99],[342,127]]],
-  [383,82,[[309,131],[331,110],[350,107],[361,92],[371,92],[383,82],[398,92],[419,101],[450,124],[480,132]]]
-];
-for(const [x,y,outline] of peaks) {
-  polygon(art,'#476b77',outline);
-  polygon(art,'#385765',[[x,y],[x+9,y+23],[x+6,y+38],[x+35,y+70],[outline.at(-1)[0],outline.at(-1)[1]],...outline.slice(outline.findIndex(p=>p[0]===x),-1).reverse()]);
-  polygon(art,'#eef0d8',[[x-22,y+20],[x-12,y+14],[x,y],[x+12,y+10],[x+26,y+28],[x+10,y+22],[x+6,y+28],[x-3,y+17],[x-12,y+24],[x-12,y+16]]);
-  polygon(art,'#a8c3bf',[[x,y],[x+12,y+10],[x+26,y+28],[x+10,y+22],[x+6,y+28],[x+4,y+15]]);
-}
-polygon(art,'#326765',[[0,113],[44,109],[78,119],[116,115],[157,128],[199,124],[235,132],[275,122],[319,125],[352,116],[401,110],[446,117],[480,111],[480,148],[0,148]]);
-const water = art.createLinearGradient(0,143,0,270);
-water.addColorStop(0,'#598b87');
-water.addColorStop(.46,'#438888');
-water.addColorStop(1,'#245b65');
-rect(art,0,143,480,127,water);
-art.save();
-art.translate(0,286);
-art.scale(1,-.48);
-art.globalAlpha=.17;
-for(const [, ,outline] of peaks) polygon(art,'#1d4c5e',outline.map(([x,y])=>[x,y+155]));
-art.restore();
-for(let x=0;x<480;x+=3){
-  const y=141+Math.floor(random()*5);
-  pine(art,x,y,4+Math.floor(random()*14),'#255551','#3d7165');
-  rect(art,x,y,4,2,'#316760');
-  if(x%6===0)rect(art,x,y+2,2,2+Math.floor(random()*6),'#477975');
-}
-for(let i=0;i<300;i++){
-  const y=147+random()*123, x=random()*480;
-  rect(art,x,y,2+random()*(5+(y-146)*.22),1,random()>.53?'#619e97':'#377778');
-}
-polygon(art,'#2b5551',[[0,191],[22,196],[28,202],[46,202],[69,217],[95,220],[108,233],[144,241],[159,252],[213,270],[0,270]]);
-polygon(art,'#183b3b',[[0,204],[23,205],[30,213],[53,213],[63,223],[92,232],[124,244],[139,258],[182,270],[0,270]]);
-for(let i=0;i<100;i++){
-  const y=204+random()*66,x=random()*(y-185)*1.75;
-  rect(art,x,y,2+random()*5,1,random()>.5?'#34644d':'#68805b');
-}
-for(const [x,y,h] of [[8,229,96],[34,231,78],[61,245,55],[93,253,37],[12,260,79]]){
-  pine(art,x,y,h,'#153837','#386351');
-}
-polygon(art,'#203d3d',[[480,212],[463,221],[451,234],[428,241],[402,254],[392,270],[480,270]]);
-for(const [x,y,h] of [[479,234,96],[461,247,72],[444,252,52],[476,270,66]]){
-  pine(art,x,y,h,'#153736','#335c4c');
-}
-for(const x of [132,171,199,223]){
-  rect(art,x,222,4,24,'#343b35');
-  rect(art,x,223,1,20,'#785d48');
-}
-polygon(art,'#70503d',[[103,226],[210,218],[235,223],[123,236]]);
-polygon(art,'#b38962',[[103,222],[210,214],[235,219],[123,232]]);
-for(let i=0;i<16;i++){
-  const x=108+i*7.3;
-  polygon(art,i%2?'#947252':'#cca275',[[x,222-i*.53],[x+1,222-i*.53],[x+20,231-i*.76],[x+19,231-i*.76]]);
-}
-const sprite = [
- ['    HHHHH   ', '#a9613b','H'],
- ['   HHHHHHH  ', '#ce8b50','H'],
- ['  DDDDDDDDD ', '#623e35','D'],
- ['    SSFS    ', '#ebb480','S','#302f30','F'],
- ['    SSSS    ', '#ebb480','S'],
- ['   GGGGGG   ', '#d7a552','G'],
- ['  GGBGGGGS  ', '#b7803d','G','#38494a','B','#efbc87','S'],
- ['  GGGBGG    ', '#d7a552','G','#38494a','B'],
- ['   BBBBB    ', '#38494a','B'],
- ['   BB BB    ', '#38494a','B'],
- ['   DD DDD   ', '#402f2c','D']
-];
-for(const [i,row] of sprite.entries()){
-  const [pixels,...colors]=row;
-  for(const [j,pixel] of [...pixels].entries()){
-    for(let k=0;k<colors.length;k+=2){
-      if(colors[k+1]===pixel) rect(art,190+j*2,197+i*2,2,2,colors[k]);
-    }
-  }
-}
+const rod = $('#rod');
+const action = $('#action');
+const log = $('#log');
+const progressMeter = $('#distance');
+const tensionMeter = $('#tension');
+const hint = $('#hint');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const storageKey = 'stillwater-first-person-v1';
 const fish = [
-  {name:'Cutthroat trout', weight:42, min:10, max:21},
-  {name:'Rainbow trout', weight:32, min:9, max:23},
-  {name:'Mountain whitefish', weight:18, min:7, max:16},
-  {name:'Brook trout', weight:8, min:6, max:15}
+  {name:'Yellowstone cutthroat', chance:46, min:10, max:22},
+  {name:'Rainbow trout', chance:30, min:9, max:24},
+  {name:'Mountain whitefish', chance:17, min:7, max:17},
+  {name:'Brook trout', chance:7, min:6, max:15}
 ];
-let catches = {};
-try { catches = JSON.parse(localStorage.getItem('stillwater-catches') || '{}') || {}; } catch {}
-const status = document.querySelector('#status');
-const hint = document.querySelector('#hint');
-const action = document.querySelector('#action');
-const log = document.querySelector('#log');
-let state = 'ready', timer, castAt = 0;
-const copy = {
-  ready:['Ready to fish?','Cast into the lake and wait for a bite.','Cast line'],
-  waiting:['Line in the water','Watch for a splash.','Recast'],
-  bite:['Fish on!','Reel it in before it slips away.','Reel in!'],
-  missed:['The fish slipped away','Cast again for another bite.','Cast again']
+let records = {};
+try {
+  const saved = JSON.parse(localStorage.getItem(storageKey));
+  if (saved && typeof saved === 'object') records = saved;
+} catch {}
+
+const labels = {
+  ready:['Cast into the shallows','Choose a spot on the water or cast straight ahead.','Cast line','to cast'],
+  casting:['Casting','Watch your line land on the water.','Casting…','to cast'],
+  waiting:['Line in the water','Watch the bobber. A bite can come at any moment.','Recast','to recast'],
+  bite:['Fish on','The bobber dipped. Set the hook now.','Set hook','to set the hook'],
+  reeling:['Bring it in','Hold to reel. Ease off if the tension climbs.','Hold to reel','hold to reel'],
+  missed:['The fish got away','Cast again and watch for the bobber to dip.','Cast again','to cast'],
+  snapped:['The line snapped','Release the reel when the line tension climbs.','Cast again','to cast']
 };
-function setState(next, message=copy[next]) {
-  state=next;
-  [status.textContent,hint.textContent,action.textContent]=message;
+let phase = 'ready';
+let started = performance.now();
+let deadline = Infinity;
+let previousFrame = started;
+let width = 0, height = 0;
+let target = {x:.48,y:.62};
+let bobber = null;
+let capturePointer = null;
+let holdingKey = false;
+let virtualReel = false;
+let progress = 0;
+let tension = 0;
+let fishOnLine = null;
+let drops = [];
+let audio = null;
+
+function setPhase(next, copy = labels[next], duration = Infinity) {
+  phase = next;
+  started = performance.now();
+  deadline = started + duration;
+  [$('#status').textContent, hint.textContent, action.textContent, $('#shortcut').textContent] = copy;
+  $('#meters').hidden = next !== 'reeling';
+  if (next !== 'reeling') virtualReel = false;
 }
+
 function updateLog() {
-  const total=fish.reduce((sum,f)=>sum+(catches[f.name]?.count||0),0);
-  document.querySelector('#total').textContent=total;
-  document.querySelector('#summary').textContent=total ? `${total} landed · ${fish.filter(f=>catches[f.name]).length} of ${fish.length} species` : 'Your first catch will appear here.';
-  document.querySelector('#species').replaceChildren(...fish.map(f=>{
-    const li=document.createElement('li'), detail=document.createElement('span');
-    li.textContent=f.name;
-    const record=catches[f.name];
-    detail.textContent=record ? `${record.count} · Best ${record.best} in` : '—';
-    li.append(detail);
-    return li;
-  }));
+  let total = 0;
+  let variety = 0;
+  const rows = fish.map(({name}) => {
+    const item = document.createElement('li');
+    const details = document.createElement('span');
+    const record = records[name];
+    item.textContent = name;
+    details.textContent = record ? `${record.count} · Best ${record.best.toFixed(1)} in` : '—';
+    if (record) {
+      total += record.count;
+      variety++;
+    }
+    item.append(details);
+    return item;
+  });
+  $('#total').textContent = total;
+  $('#summary').textContent = total ? `${total} landed · ${variety} of ${fish.length} species` : 'Your first catch will appear here.';
+  $('#species').replaceChildren(...rows);
 }
-function play() {
-  clearTimeout(timer);
-  if(state==='bite'){
-    let roll=Math.random()*100;
-    const caught=fish.find(f=>(roll-=f.weight)<0);
-    const size=caught.min+Math.floor(Math.random()*(caught.max-caught.min+1));
-    const record=catches[caught.name] ||= {count:0,best:0};
-    record.count++;
-    record.best=Math.max(record.best,size);
-    try { localStorage.setItem('stillwater-catches',JSON.stringify(catches)); } catch {}
-    updateLog();
-    setState('caught',[`Caught a ${caught.name.toLowerCase()}!`,`${size} inches · Added to your catch log.`,'Cast again']);
-    return;
-  }
-  castAt=performance.now();
-  setState('waiting');
-  timer=setTimeout(()=>{
-    setState('bite');
-    timer=setTimeout(()=>setState('missed'),5500);
-  },1800+Math.random()*2900);
+
+function cast(point = {x:.48,y:.60}) {
+  target = point;
+  bobber = null;
+  setPhase('casting', undefined, 650);
+  tone(295, .13, .045);
 }
-action.addEventListener('click',play);
-document.querySelector('#journal').addEventListener('click',()=>log.showModal());
-document.addEventListener('keydown',e=>{
-  if(e.code!=='Space'||log.open||e.altKey||e.ctrlKey||e.metaKey||(e.target.closest?.('button') && e.target!==action)) return;
-  e.preventDefault();
-  if(!e.repeat)play();
+
+function hook() {
+  let roll = Math.random() * 100;
+  fishOnLine = fish.find(species => (roll -= species.chance) < 0);
+  progress = 0;
+  tension = .15;
+  progressMeter.value = progress;
+  tensionMeter.value = tension;
+  setPhase('reeling');
+  tone(485, .14);
+}
+
+function land() {
+  const {name,min,max} = fishOnLine;
+  const size = Math.round((min + Math.random() * (max - min)) * 10) / 10;
+  const record = records[name] ||= {count:0,best:0};
+  record.count++;
+  record.best = Math.max(size, record.best);
+  try { localStorage.setItem(storageKey, JSON.stringify(records)); } catch {}
+  updateLog();
+  setPhase('caught', [name,`${size.toFixed(1)} inches · Released back into the lake.`,'Cast again','to cast']);
+  splash(bobber.x, bobber.y, 16);
+  bobber = null;
+  tone(620, .23);
+}
+
+function activate() {
+  if (phase === 'bite') hook();
+  else if (phase === 'reeling') virtualReel = !virtualReel;
+  else if (phase !== 'casting') cast();
+}
+
+view.addEventListener('pointerdown', event => {
+  if (event.button !== 0 || phase === 'casting' || phase === 'reeling' || phase === 'bite') return;
+  const bounds = view.getBoundingClientRect();
+  const x = (event.clientX - bounds.left) / width;
+  const y = (event.clientY - bounds.top) / height;
+  if (y >= .47) cast({x:Math.min(.90, Math.max(.10,x)),y:Math.min(.77,y)});
 });
-function draw(now) {
-  ctx.drawImage(landscape,0,0);
-  for(let i=0;i<16;i++){
-    const x=(i*97+62)%469, y=151+(i*17)%110;
-    if(Math.sin(now/760+i*1.8)>.2)rect(ctx,x,y,4+(i%4)*4,1,'#83b5a6');
+action.addEventListener('pointerdown', event => {
+  if (event.button !== 0 || phase !== 'reeling') return;
+  capturePointer = event.pointerId;
+  action.setPointerCapture(capturePointer);
+});
+action.addEventListener('lostpointercapture', () => { capturePointer = null; });
+action.addEventListener('click', event => {
+  if (phase !== 'reeling' || event.detail === 0) activate();
+});
+document.addEventListener('keydown', event => {
+  if (event.code !== 'Space' || log.open || event.altKey || event.ctrlKey || event.metaKey || (event.target.closest?.('button') && event.target !== action)) return;
+  event.preventDefault();
+  if (event.repeat) return;
+  holdingKey = true;
+  if (phase !== 'reeling') activate();
+});
+document.addEventListener('keyup', event => {
+  if (event.code === 'Space') holdingKey = false;
+});
+window.addEventListener('blur', () => {
+  holdingKey = false;
+  capturePointer = null;
+  virtualReel = false;
+});
+$('#journal').addEventListener('click', () => {
+  virtualReel = false;
+  holdingKey = false;
+  log.showModal();
+});
+
+function tone(frequency, duration, volume = .08) {
+  if (!audio || audio.state !== 'running') return;
+  const oscillator = audio.createOscillator();
+  const envelope = audio.createGain();
+  const now = audio.currentTime;
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(frequency, now);
+  oscillator.frequency.exponentialRampToValueAtTime(frequency * .62, now + duration);
+  envelope.gain.setValueAtTime(volume, now);
+  envelope.gain.exponentialRampToValueAtTime(.001, now + duration);
+  oscillator.connect(envelope).connect(audio.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration);
+}
+
+$('#sound').addEventListener('click', async event => {
+  const control = event.currentTarget;
+  try {
+    audio ||= new (window.AudioContext || window.webkitAudioContext)();
+    const enable = control.getAttribute('aria-pressed') === 'false';
+    if (enable) await audio.resume();
+    else await audio.suspend();
+    control.setAttribute('aria-pressed', String(enable));
+    control.textContent = enable ? 'Sound on' : 'Sound off';
+    if (enable) tone(405, .16);
+  } catch {
+    control.textContent = 'Sound unavailable';
+    control.disabled = true;
   }
-  polygon(ctx,'#644638',[[207,211],[222,191],[233,181],[232,184],[224,193],[209,212]]);
-  if(state==='waiting'||state==='bite'){
-    const progress=Math.min(1,(now-castAt)/420);
-    const x=Math.round(233+64*progress);
-    const y=Math.round(181+8*progress-13*Math.sin(progress*Math.PI)+(state==='bite'?3*Math.sin(now/52):Math.sin(now/430)));
-    ctx.strokeStyle='#c4dcbd';
-    ctx.beginPath();
-    ctx.moveTo(232,182);
-    ctx.quadraticCurveTo(264,174,x,y);
-    ctx.stroke();
-    rect(ctx,x-2,y-4,4,4,'#fa7750');
-    rect(ctx,x-2,y,4,2,'#fff1c9');
-    if(progress===1){
-      const r=4+Math.floor(now/(state==='bite'?42:115))%13;
-      rect(ctx,x-r,y+3,4,1,'#b7d7c8');
-      rect(ctx,x+r-3,y+3,4,1,'#b7d7c8');
-      if(state==='bite'){
-        rect(ctx,x-7,y-5,2,2,'#ebedce');
-        rect(ctx,x+5,y-7,2,2,'#ebedce');
-        rect(ctx,x-15,y-28,30,15,'#183737');
-        ctx.font='bold 9px monospace';
-        ctx.fillStyle='#ffce80';
-        ctx.fillText('BITE!',x-13,y-17);
+});
+
+function resize() {
+  width = view.clientWidth;
+  height = view.clientHeight;
+  const scale = Math.min(devicePixelRatio, 2);
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
+  ctx.setTransform(scale,0,0,scale,0,0);
+  drops = [];
+}
+window.addEventListener('resize', resize);
+
+function splash(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    drops.push({x,y,vx:(Math.random()-.5)*105,vy:-18-Math.random()*75,lifetime:.2+Math.random()*.45});
+  }
+}
+
+function ring(x,y,r,alpha) {
+  ctx.beginPath();
+  ctx.ellipse(x,y,r,r*.23,0,0,Math.PI*2);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = `rgba(223,240,233,${alpha})`;
+  ctx.stroke();
+}
+
+function drawBobber(x, y, scale) {
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.scale(scale,scale);
+  ctx.fillStyle = '#2333336e';
+  ctx.beginPath();
+  ctx.ellipse(0,3,5.5,2,0,0,Math.PI*2);
+  ctx.fill();
+  const color = ctx.createLinearGradient(-5,-7,5,0);
+  color.addColorStop(0,'#fe7e58');
+  color.addColorStop(.45,'#da492d');
+  color.addColorStop(1,'#712217');
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(0,-2,4.7,5.4,0,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#f3e8d0';
+  ctx.fillRect(-3,0,6,1.6);
+  ctx.fillRect(-.7,-10,1.4,4);
+  ctx.restore();
+}
+
+function advance(now, dt) {
+  const elapsed = (now-started)/1000;
+  if (phase === 'casting' && now >= deadline) {
+    bobber = {x:target.x*width,y:target.y*height};
+    splash(bobber.x,bobber.y,9);
+    tone(140,.17);
+    setPhase('waiting', undefined, 2200+Math.random()*4300);
+  } else if (phase === 'waiting' && now >= deadline) {
+    splash(target.x*width,target.y*height,12);
+    tone(250,.19);
+    setPhase('bite', undefined, 5200);
+  } else if (phase === 'bite' && now >= deadline) {
+    bobber = null;
+    setPhase('missed');
+  } else if (phase === 'reeling' && !log.open) {
+    const winding = holdingKey || capturePointer !== null || virtualReel;
+    const surge = Math.pow(Math.sin(elapsed*1.15), 6);
+    tension = Math.max(.08,tension+dt*(winding ? .06+surge*.51 : -.54));
+    progress += winding ? dt*(.21-.075*surge) : -dt*.017;
+    progress = Math.max(0,progress);
+    progressMeter.value = progress;
+    tensionMeter.value = tension;
+    const guidance = tension > .77 ? 'Ease off to lower the line tension.' : labels.reeling[1];
+    if (hint.textContent !== guidance) hint.textContent = guidance;
+    if (tension >= 1) {
+      bobber = null;
+      setPhase('snapped');
+      tone(100,.17);
+    } else if (progress >= 1) land();
+  }
+}
+
+function draw(now) {
+  const dt = Math.min(.06,(now - previousFrame)/1000);
+  previousFrame = now;
+  advance(now,dt);
+  const elapsed = (now-started)/1000;
+  const motion = !reduceMotion.matches;
+  ctx.clearRect(0,0,width,height);
+  let angle = motion ? .65*Math.sin(now/920) : 0;
+  if (phase === 'casting' && motion) angle += -20*Math.sin(Math.min(1,elapsed/.65)*Math.PI*2);
+  if (phase === 'bite' && motion) angle += 2.5*Math.sin(now/60);
+  if (phase === 'reeling' && motion) angle += 7*tension + 1.6*Math.sin(now/88);
+  rod.style.transform = `rotate(${angle}deg)`;
+
+  const rodHeight = rod.offsetHeight;
+  const rodWidth = rod.offsetWidth;
+  const pivotX = rod.offsetLeft + .92*rodWidth;
+  const pivotY = rod.offsetTop + .91*rodHeight;
+  const tipOffsetX = (.103-.92)*rodWidth;
+  const tipOffsetY = (.039-.91)*rodHeight;
+  const theta = angle*Math.PI/180;
+  const tipX = pivotX + tipOffsetX*Math.cos(theta) - tipOffsetY*Math.sin(theta);
+  const tipY = pivotY + tipOffsetX*Math.sin(theta) + tipOffsetY*Math.cos(theta);
+
+  if (phase === 'casting' || phase === 'waiting' || phase === 'bite' || phase === 'reeling') {
+    let x = target.x*width;
+    let y = target.y*height;
+    if (phase === 'casting') {
+      const fraction = Math.min(1,elapsed/.65);
+      x = tipX + (x-tipX)*fraction;
+      y = tipY + (y-tipY)*fraction - (motion ? Math.sin(fraction*Math.PI)*height*.17 : 0);
+    } else if (phase === 'reeling') {
+      x += (width*.58-x)*progress + (motion ? Math.sin(now/203)*8 : 0);
+      y += (height*.87-y)*progress;
+    }
+    if (phase === 'bite' && motion) y += Math.sin(now/62)*4;
+    bobber = {x,y};
+    if (phase !== 'casting') {
+      for (let i = 0; i < 2; i++) {
+        const ripple = ((now/1300 + i*.48)%1);
+        ring(x,y,4+ripple*(phase === 'bite' ? 28 : 16),.58*(1-ripple));
       }
     }
+    const line = ctx.createLinearGradient(tipX,tipY,x+1,y+1);
+    line.addColorStop(0,'#e2e9dcaa');
+    line.addColorStop(1,'#fcf3dbd9');
+    ctx.strokeStyle = line;
+    ctx.lineWidth = .8;
+    ctx.beginPath();
+    ctx.moveTo(tipX,tipY);
+    ctx.quadraticCurveTo((tipX+x)/2,(tipY+y)/2 + (phase === 'reeling' ? 6 : 26),x,y-4);
+    ctx.stroke();
+    drawBobber(x,y,.8+Math.max(0,y/height-.45)*1.2);
   }
+
+  drops = drops.filter(drop => {
+    drop.lifetime -= dt;
+    if (drop.lifetime <= 0) return false;
+    drop.x += drop.vx*dt;
+    drop.y += drop.vy*dt;
+    drop.vy += 175*dt;
+    ctx.fillStyle = `rgba(232,248,240,${drop.lifetime})`;
+    ctx.beginPath();
+    ctx.arc(drop.x,drop.y,1.2,0,Math.PI*2);
+    ctx.fill();
+    return true;
+  });
   requestAnimationFrame(draw);
 }
+
 updateLog();
+resize();
 requestAnimationFrame(draw);
